@@ -2,7 +2,7 @@
 
 This project aims to demonstrate live visualization of audio recording.
 Audio I/O is handled by PyAudio.
-GUI is developed using Tkinter
+GUI is developed using Tkinter or PyQt
 
 Plotting options:
 * matplotlib http://matplotlib.org/
