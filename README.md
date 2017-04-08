@@ -2,10 +2,12 @@
 
 This project aims to demonstrate live visualization of audio recording.
 Audio I/O is handled by PyAudio.
-Plotting the visualization graph is done using matplotlib.
 GUI is developed using Tkinter
+
+Plotting options:
+* matplotlib http://matplotlib.org/
+* pyqtgraph http://www.pyqtgraph.org/. Preferred because of more performance
 
 Links:
 * https://people.csail.mit.edu/hubert/pyaudio/
-* http://matplotlib.org/
 * https://docs.python.org/3.6/library/tkinter.html
