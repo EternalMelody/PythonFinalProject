@@ -6,16 +6,14 @@ import numpy
 
 # On creation, records audio through the microphone
 class Recorder(object):
-    def __init__(self, rate=4000, chunksize=1024):
+    def __init__(self, rate=44100):
         # Initialize audio variables and pyaudio
         self.rate = rate
-        self.chunksize = chunksize
         self.pyaudio_instance = pyaudio.PyAudio()
         self.stream = self.pyaudio_instance.open(format=pyaudio.paInt16,
                                                  channels=1,
                                                  rate=self.rate,
                                                  input=True,
-                                                 frames_per_buffer=self.chunksize,
                                                  stream_callback=self.new_frame)
         self.frames = []
 

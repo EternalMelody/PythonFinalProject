@@ -1,4 +1,4 @@
-from queue import Queue
+from collections import deque
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph
 from recorder import Recorder
@@ -13,8 +13,13 @@ class Plotter(QtGui.QWidget):
     def __init__(self, width, height):
         QtGui.QWidget.__init__(self)
 
+        # Initialize the recorder
+        recorder = Recorder()
+        recorder.start()
+        self.recorder = recorder
+        self.rms_deque = deque(maxlen=Plotter.RMS_QUEUE_SIZE)
+
         # Initialize the user interface
-        graphics_window = pyqtgraph.GraphicsWindow()
         layout = QtGui.QGridLayout()
         self.setLayout(layout)
         self.resize(width, height)
@@ -24,7 +29,7 @@ class Plotter(QtGui.QWidget):
         pyqtgraph.setConfigOptions(antialias=True)
         oscilloscope_widget = pyqtgraph.PlotWidget()
         oscilloscope_curve = oscilloscope_widget.plot(pen='y')
-        oscilloscope_widget.setXRange(0,1050)
+        oscilloscope_widget.enableAutoRange('x', True)  # TODO Extract constants when measurement units are identified
         oscilloscope_widget.setYRange(-50000,50000)
         self.oscilloscope_curve = oscilloscope_curve
 
@@ -44,11 +49,6 @@ class Plotter(QtGui.QWidget):
         timer.start(Plotter.TIMER_INTERVAL)
         self.timer = timer
 
-        # Initialize the recorder
-        recorder = Recorder()
-        recorder.start()
-        self.recorder = recorder
-        self.rms_queue = Queue(maxsize=Plotter.RMS_QUEUE_SIZE)
 
     # Handle callback data from recorder
     def handle_new_data(self):
@@ -56,11 +56,9 @@ class Plotter(QtGui.QWidget):
         if len(frames) > 0:
             current_frame = frames[-1]
             rms = audioop.rms(current_frame,2)
-            if self.rms_queue.full():
-                self.rms_queue.get_nowait()
-            self.rms_queue.put_nowait(rms)
+            self.rms_deque.append(rms)
             self.oscilloscope_curve.setData(current_frame)
-            self.volume_curve.setData(list(self.rms_queue.queue))
+            self.volume_curve.setData(list(self.rms_deque))
 
 
 # Start Qt event loop unless running in interactive mode or using pyside.
